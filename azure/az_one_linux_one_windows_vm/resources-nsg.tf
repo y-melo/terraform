@@ -48,6 +48,20 @@ resource "azurerm_network_security_rule" "allow-in-rdp" {
   network_security_group_name = azurerm_network_security_group.nsg_default.name
 }
 
+resource "azurerm_network_security_rule" "a-in-vnet-all" {
+  name                        = "a-in-vnet-all"
+  priority                    = 3900
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "VIRTUALNETWORK"
+  destination_address_prefix  = "VIRTUALNETWORK"
+  resource_group_name = azurerm_resource_group.group.name
+  network_security_group_name = azurerm_network_security_group.nsg_default.name
+}
+
 resource "azurerm_network_security_rule" "deny-in-all" {
   name                        = "d-in-all"
   priority                    = 4000

@@ -22,8 +22,12 @@ variable "solution" {
   type        = string
   default     = "Solution"
 }
-variable "vm_name" {
-  description = "VM name (it wil be prefixed with vm-)"
+variable "vml_name" {
+  description = "LINUX VM name (it wil be prefixed with vml-)"
+  type        = string
+}
+variable "vmw_name" {
+  description = "WINDOWS VM name (it wil be prefixed with vmw-)"
   type        = string
 }
 
@@ -34,7 +38,6 @@ variable "username" {
 
 variable "win_password" {
   type = string
-  default = "Only_for_windows"
   sensitive = true
   description = "Used only when creating windows VM"
 }
@@ -44,20 +47,39 @@ variable "ssh_file_path" {
   default = "~/.ssh/id_rsa.pub"
 }
 
-variable "publisher" {
+variable "linux_publisher" {
   type    = string
   default = "Canonical" /* OpenLogic */
 }
-variable "offer" {
+variable "linux_offer" {
   type    = string
   default = "UbuntuServer" /* CentOS */
 }
-variable "sku" {
+variable "linux_sku" {
   type    = string
   default = "18_04-lts-gen2" /* 7_8-gen2 */
 }
 
-variable "vm_size" {
+variable "linux_vm_size" {
+  description = "Map of vm sizes to be used based on current name space"
+  type        = string
+  default     = "Standard_D2s_v4"
+}
+
+variable "win_publisher" {
+  type    = string
+  default = "MicrosoftWindowsServer" /* OpenLogic */
+}
+variable "win_offer" {
+  type    = string
+  default = "WindowsServer" /* CentOS */
+}
+variable "win_sku" {
+  type    = string
+  default = "2022-datacenter" /* 7_8-gen2 */
+}
+
+variable "win_vm_size" {
   description = "Map of vm sizes to be used based on current name space"
   type        = string
   default     = "Standard_D2s_v4"
@@ -78,6 +100,7 @@ variable "extra_tags" {
   type    = map(string)
   default = {}
 }
+
 ###############################################################################
 #   LOCALS
 ###############################################################################
@@ -89,16 +112,17 @@ locals {
   indexpostfix = "01"
 
   group_name = upper("${var.client}-${var.azure_region}-${local.env}-${var.solution}-RG") # CLIENT-REGION-WORKSPACE-SOLUTION-RG
-
-  network_address_prefix = "172.20.0.0/16"
+  # THLN-CE-CBHTST-ACS-RG
+  network_address_prefix = "172.21.0.0/16"
   subnet_address_prefix = {
-    "${local.env}" = "172.20.0.0/24"
+    "${local.env}" = "172.21.0.0/24"
     }
 
   vnet_name   = upper("${var.client}-${var.azure_region}-VNET-${local.indexpostfix}") # CLIENT-REGION-VNET-01
   subnet_name = lower("subnet-${local.env}")                                          # subnet-WORKSPACE
 
-  vm_full_name = (var.publisher == "MicrosoftWindowsServer") ? lower("vmw-${var.vm_name}-${local.indexpostfix}") : lower("vml-${var.vm_name}-${local.indexpostfix}")
+  vml_full_name = lower("vml-${var.vml_name}-${local.indexpostfix}")
+  vmw_full_name = lower("vmw-${var.vmw_name}-${local.indexpostfix}") 
 
   ####################################################################
   common_tags = merge(

@@ -10,7 +10,10 @@ Resource group:
   NSG
   NSG association
   PublicIP
-  VM
+  VM Linux
+    NIC
+    OS disk
+  VM Windows
     NIC
     OS disk
 
@@ -28,14 +31,19 @@ Resource group:
 | allowed_ssh_ips  | list        |
 | allowed_http_ips | list        |
 | solution         | string      |
-| vm_name          | string      |
+| vml_name          | string      |
+| vmw_name          | string      |
 | username         | string      |
 | win_password     | string      |
 | ssh_file_path    | string      |
-| publisher        | string      |
-| offer            | string      |
-| sku              | string      |
-| vm_size          | string      |
+| linux_publisher        | string      |
+| linux_offer            | string      |
+| linux_sku              | string      |
+| linux_vm_size          | string      |
+| win_publisher        | string      |
+| win_offer            | string      |
+| win_sku              | string      |
+| win_vm_size          | string      |
 | region_map       | map(string) |
 | extra_tags       | map(string) |
 

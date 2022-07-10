@@ -19,10 +19,6 @@ output "username"{
   value = var.username
 }
 
-output "ssh_connection"{
-  value = "ssh ${var.username}@${azurerm_public_ip.pip.ip_address}"
-}
-
 output "allowed_ssh_ips" {
   value = var.allowed_ssh_ips
 }

@@ -30,8 +30,11 @@ resource "azurerm_subnet_network_security_group_association" "subnet-nsg-assoc" 
   network_security_group_id = azurerm_network_security_group.nsg_default.id
 }
 
-resource "azurerm_public_ip" "pip" {
-  name                = "pip-${local.vm_full_name}"
+
+## LINUX RESOURCES ##
+
+resource "azurerm_public_ip" "pipl" {
+  name                = "pipl-${local.vml_full_name}"
   resource_group_name = azurerm_resource_group.group.name
   location            = azurerm_resource_group.group.location
   allocation_method   = "Static"
@@ -39,8 +42,8 @@ resource "azurerm_public_ip" "pip" {
   tags = local.common_tags
 }
 
-resource "azurerm_network_interface" "vm_nic" {
-  name                = "nic-${local.vm_full_name}"
+resource "azurerm_network_interface" "vml_nic" {
+  name                = "nic-${local.vml_full_name}"
   location            = azurerm_resource_group.group.location
   resource_group_name = azurerm_resource_group.group.name
   
@@ -48,19 +51,18 @@ resource "azurerm_network_interface" "vm_nic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.pip.id
+    public_ip_address_id = azurerm_public_ip.pipl.id
   }
 }
 
-resource "azurerm_linux_virtual_machine" "vm-linux" {
-  count = (var.offer == "WindowsServer") ? 0 : 1
-  name                            = local.vm_full_name
+resource "azurerm_linux_virtual_machine" "vml" {
+  name                            = local.vml_full_name
   resource_group_name             = azurerm_resource_group.group.name
   location                        = azurerm_resource_group.group.location
-  size                            = var.vm_size
+  size                            = var.linux_vm_size
   admin_username                  = var.username
   network_interface_ids = [
-    azurerm_network_interface.vm_nic.id,
+    azurerm_network_interface.vml_nic.id,
   ]
 
   admin_ssh_key {
@@ -73,24 +75,48 @@ resource "azurerm_linux_virtual_machine" "vm-linux" {
   }
 
   source_image_reference {
-    publisher = var.publisher
-    offer     = var.offer
-    sku       = var.sku
+    publisher = var.linux_publisher
+    offer     = var.linux_offer
+    sku       = var.linux_sku
     version   = "latest"
   }
 }
 
-resource "azurerm_windows_virtual_machine" "vm-windows" {
-  count = (var.offer == "WindowsServer") ? 1 : 0
-  name                            = local.vm_full_name
+
+## WINDOWS RESOURCES ##
+
+resource "azurerm_public_ip" "pipw" {
+  name                = "pipw-${local.vml_full_name}"
+  resource_group_name = azurerm_resource_group.group.name
+  location            = azurerm_resource_group.group.location
+  allocation_method   = "Static"
+
+  tags = local.common_tags
+}
+
+resource "azurerm_network_interface" "vmw_nic" {
+  name                = "nic-${local.vmw_full_name}"
+  location            = azurerm_resource_group.group.location
+  resource_group_name = azurerm_resource_group.group.name
+  
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.pipw.id
+  }
+}
+
+resource "azurerm_windows_virtual_machine" "vmw" {
+  name                            = local.vmw_full_name
   resource_group_name             = azurerm_resource_group.group.name
   location                        = azurerm_resource_group.group.location
-  size                            = var.vm_size
+  size                            = var.win_vm_size
   admin_username                  = var.username
   admin_password                  = var.win_password
 
   network_interface_ids = [
-    azurerm_network_interface.vm_nic.id,
+    azurerm_network_interface.vmw_nic.id,
   ]
 
   os_disk {
@@ -99,9 +125,9 @@ resource "azurerm_windows_virtual_machine" "vm-windows" {
   }
 
   source_image_reference {
-    publisher = var.publisher
-    offer     = var.offer
-    sku       = var.sku
+    publisher = var.win_publisher
+    offer     = var.win_offer
+    sku       = var.win_sku
     version   = "latest"
   }
 

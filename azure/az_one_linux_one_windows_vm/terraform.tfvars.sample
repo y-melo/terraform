@@ -4,6 +4,7 @@ vm_name = "myvm"
 username = "ehrz"
 win_password = "Only_for_windows"
 ssh_file_path = "~/.ssh/id_rsa.pub"
+
 allowed_ssh_ips =  ['1.1.1.1'] # Add your local ip: `curl whatismyip.akamai.com`
 allowed_http_ips =  ['1.1.1.1']
 vm_size = "Standard_D2sv4"
